@@ -3,8 +3,6 @@ require_once __DIR__ . '/../database/db.php';
 require_once __DIR__ . '/../api/thesportsdb.php';
 require_once __DIR__ . '/../config/config.php';
 
-
-
 function sincronizar_y_obtener_equipos($conn) {
 	$key = 'equipos';
 	$ttl = TTL_EQUIPOS;
