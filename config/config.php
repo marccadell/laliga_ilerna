@@ -11,3 +11,5 @@ define('LEAGUE_ID', '4335');
 define('TTL_EQUIPOS', 86400);
 define('TTL_CLASIFICACION', 1800);
 define('TTL_EVENTOS', 21600);
+
+define('ROOT_PATH', 'http://localhost:8080/laliga/public/');
