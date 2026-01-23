@@ -4,10 +4,10 @@ require_once __DIR__ . '/../api/thesportsdb.php';
 require_once __DIR__ . '/../config/config.php';
 
 function sincronizar_y_obtener_equipos($conn) {
-	$key = 'equipos';
+	$key = 'teams';
 	$ttl = TTL_EQUIPOS;
 	try {
-		$stmt = $conn->prepare('SELECT updated_at, is_updating FROM sync_status WHERE data_key = ?');
+		$stmt = $conn->prepare('SELECT updated_at, is_updating FROM sync_status WHERE cache_key = ?');
 		$stmt->bind_param('s', $key);
 		$stmt->execute();
 		$stmt->store_result();
@@ -25,7 +25,7 @@ function sincronizar_y_obtener_equipos($conn) {
 		$last_update = $updated_at ? strtotime($updated_at) : 0;
 
 		if ($now - $last_update > $ttl && !$is_updating) {
-			$conn->query("UPDATE sync_status SET is_updating = 1 WHERE data_key = '$key'");
+			$conn->query("UPDATE sync_status SET is_updating = 1 WHERE cache_key = '$key'");
 
 			$equipos = fetch_all_teams();
 			if ($equipos) {
@@ -43,9 +43,9 @@ function sincronizar_y_obtener_equipos($conn) {
 					$stmt->execute();
 				}
 				$stmt->close();
-				$conn->query("UPDATE sync_status SET updated_at = NOW(), is_updating = 0 WHERE data_key = '$key'");
+				$conn->query("UPDATE sync_status SET updated_at = NOW(), is_updating = 0 WHERE cache_key = '$key'");
 			} else {
-				$conn->query("UPDATE sync_status SET is_updating = 0 WHERE data_key = '$key'");
+				$conn->query("UPDATE sync_status SET is_updating = 0 WHERE cache_key = '$key'");
 			}
 		}
 
