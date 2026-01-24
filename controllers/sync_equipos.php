@@ -1,64 +1,82 @@
 <?php
-require_once __DIR__ . '/../database/db.php';
-require_once __DIR__ . '/../api/thesportsdb.php';
-require_once __DIR__ . '/../config/config.php';
+	function sincronizar_y_obtener_equipos($conn)
+	{
+		$equipos_api = fetch_all_teams();
 
-function sincronizar_y_obtener_equipos($conn) {
-	$key = 'teams';
-	$ttl = TTL_EQUIPOS;
-	try {
-		$stmt = $conn->prepare('SELECT updated_at, is_updating FROM sync_status WHERE cache_key = ?');
-		$stmt->bind_param('s', $key);
-		$stmt->execute();
-		$stmt->store_result();
-		if ($stmt->num_rows === 0) {
-			$stmt->close();
-			return ['error' => 'No hay registros disponibles para los equipos'];
+		if (!$equipos_api || !is_array($equipos_api)) {
+			echo "<script>console.log('Error: fetch_all_teams() retornó datos vacíos o inválidos');</script>";
+			return [];
 		}
-		$updated_at = null;
-		$is_updating = null;
-		$stmt->bind_result($updated_at, $is_updating);
-		$stmt->fetch();
-		$stmt->close();
+		echo "<script>console.log('Sincronizando equipos en BBDD...');</script>";
 
-		$now = time();
-		$last_update = $updated_at ? strtotime($updated_at) : 0;
+		$conn->query('SET FOREIGN_KEY_CHECKS=0');
+		
+		$delete_result = $conn->query('DELETE FROM teams');
+		if (!$delete_result) {
+			echo "<script>console.log('Error eliminando equipos antiguos: " . addslashes($conn->error) . "');</script>";
+			$conn->query('SET FOREIGN_KEY_CHECKS=1');
+			return [];
+		}
+		echo "<script>console.log('Equipos antiguos eliminados');</script>";
 
-		if ($now - $last_update > $ttl && !$is_updating) {
-			$conn->query("UPDATE sync_status SET is_updating = 1 WHERE cache_key = '$key'");
+		$stmt = $conn->prepare('INSERT INTO teams (id, season_id, name, short_name, code,
+					slug, crest_url, stadium, stadium_capacity, city, updated_at)
+					VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())');
+		if (!$stmt) {
+			echo "<script>console.log('Error preparando statement: " . addslashes($conn->error) . "');</script>";
+			return [];
+		}
+		$inserted = 0;
 
-			$equipos = fetch_all_teams();
-			if ($equipos) {
-				$conn->query('DELETE FROM equipos');
-				$stmt = $conn->prepare('INSERT INTO equipos (idTeam, strTeam, strTeamBadge, strStadium, strDescriptionES) VALUES (?, ?, ?, ?, ?)');
-				foreach ($equipos as $eq) {
-					$stmt->bind_param(
-						'sssss',
-						$eq['idTeam'],
-						$eq['strTeam'],
-						$eq['strTeamBadge'],
-						$eq['strStadium'],
-						$eq['strDescriptionES']
-					);
-					$stmt->execute();
-				}
-				$stmt->close();
-				$conn->query("UPDATE sync_status SET updated_at = NOW(), is_updating = 0 WHERE cache_key = '$key'");
+		foreach ($equipos_api as $equipo) {
+			$id = (int)($equipo['id'] ?? null);
+			$season_id = (int)SEASON_ID;
+			$name = $equipo['name'] ?? null;
+			$short_name = $equipo['short_name'] ?? null;
+			$code = $equipo['code'] ?? '';
+			$slug = $equipo['slug'] ?? '';
+			$crest_url = $equipo['crest_url'] ?? null;
+			$stadium = $equipo['stadium'] ?? null;
+			$stadium_capacity = (int)($equipo['stadium_capacity'] ?? 0);
+			$city = $equipo['city'] ?? null;
+
+			if ($id === null || $id === 0) {
+				echo "<script>console.log('Advertencia: id nulo en equipo, saltando');</script>";
+				continue;
+			}
+
+			$stmt->bind_param(
+				'iissssssis',
+				$id,
+				$season_id,
+				$name,
+				$short_name,
+				$code,
+				$slug,
+				$crest_url,
+				$stadium,
+				$stadium_capacity,
+				$city
+			);
+
+			if ($stmt->execute()) {
+				$inserted++;
 			} else {
-				$conn->query("UPDATE sync_status SET is_updating = 0 WHERE cache_key = '$key'");
+				echo "<script>console.log('Error insertando equipo id=" . $id . ": " . addslashes($conn->error) . "');</script>";
 			}
 		}
+		$stmt->close();
+		echo "<script>console.log('Sincronización de equipos completada. Equipos insertados: " . $inserted . " de " . count($equipos_api) . "');</script>";
 
-		$result = $conn->query('SELECT * FROM equipos');
-		if (!$result) {
-			return ['error' => 'Error al consultar equipos: ' . $conn->error];
-		}
+		$conn->query('SET FOREIGN_KEY_CHECKS=1');
+
+		$result = $conn->query('SELECT * FROM teams WHERE season_id = ' . SEASON_ID . ' ORDER BY name ASC');
 		$datos = [];
-		while ($row = $result->fetch_assoc()) {
-			$datos[] = $row;
+		if ($result) {
+			while ($row = $result->fetch_assoc()) {
+				$datos[] = $row;
+			}
 		}
 		return $datos;
-	} catch (Exception $e) {
-		return ['error' => 'Error en sincronizar_y_obtener_equipos: ' . $e->getMessage()];
-	}
+
 }

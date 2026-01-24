@@ -174,22 +174,18 @@ function fetch_all_teams()
     $results = [];
     foreach ($data['teams'] as $team) {
         $results[] = [
-            'idTeam' => $team['id'],
-            'api_id_equipo' => (string)$team['id'],
-            'strTeam' => $team['name'],
-            'nombre' => $team['name'],
-            'strTeamShort' => $team['short_name'] ?? '',
+            'id' => $team['id'],
+            'season_id' => (int)SEASON_ID ?? null,
+            'name' => $team['name'],
             'short_name' => $team['short_name'] ?? '',
-            'strTeam2Badge' => $team['crest_url'] ?? '',
-            'escudo_url' => $team['crest_url'] ?? '',
-            'intFormedYear' => null,
-            'strStadium' => $team['stadium']['name'] ?? '',
-            'estadio' => $team['stadium']['name'] ?? '',
-            'strCity' => $team['city'] ?? '',
-            'ciudad' => $team['city'] ?? '',
-            'stadio_capacidad' => $team['stadium']['capacity'] ?? 0,
-            'strCountry' => 'Spain',
-            'strLeague' => 'LALIGA EA SPORTS',
+            'code' => $team['code'] ?? '',
+            'slug' => $team['slug'] ?? '',
+            'crest_url' => $team['crest_url'] ?? '',
+            'stadium' => $team['stadium']['name'] ?? '',
+            'city' => $team['city'] ?? '',
+            'stadium_capacity' => $team['stadium']['capacity'] ?? 0,
+            'stadium_lat' => $team['stadium']['latitude'] ?? 0,
+            'stadium_lng' => $team['stadium']['longitude'] ?? 0,
             'updated_at' => $team['updated_at_utc'] ?? date('Y-m-d H:i:s')
         ];
     }
