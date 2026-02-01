@@ -10,7 +10,7 @@
 		echo "<script>console.log('Sincronizando equipos en BBDD...');</script>";
 
 		$conn->query('SET FOREIGN_KEY_CHECKS=0');
-		
+
 		$delete_result = $conn->query('DELETE FROM teams');
 		if (!$delete_result) {
 			echo "<script>console.log('Error eliminando equipos antiguos: " . addslashes($conn->error) . "');</script>";
@@ -41,7 +41,7 @@
 			$city = $equipo['city'] ?? null;
 
 			if ($id === null || $id === 0) {
-				echo "<script>console.log('Advertencia: id nulo en equipo, saltando');</script>";
+				echo "<script>console.log('ID NULL en equipo, SKIP');</script>";
 				continue;
 			}
 
@@ -66,7 +66,7 @@
 			}
 		}
 		$stmt->close();
-		echo "<script>console.log('Sincronización de equipos completada. Equipos insertados: " . $inserted . " de " . count($equipos_api) . "');</script>";
+		echo "<script>console.log('Sincronizacion de equipos completada, equipos insertados: " . $inserted . " de " . count($equipos_api) . "');</script>";
 
 		$conn->query('SET FOREIGN_KEY_CHECKS=1');
 

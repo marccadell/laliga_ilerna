@@ -5,7 +5,6 @@ if (defined('API_LALIGA_LOADED')) {
 }
 define('API_LALIGA_LOADED', true);
 
-//require_once __DIR__ . '/../config/config.php';
 
 // Cargar API
 function load_api_data()
@@ -229,7 +228,6 @@ function fetch_league_table()
         return $standings;
     }
 
-    // Si no hay tabla precomputada, retornar array vacío
     return [];
 }
 
@@ -242,43 +240,97 @@ function fetch_league_events()
     }
 
     $results = [];
-    $equiposMap = isset($data['teams']) ? array_column($data['teams'], 'name', 'id') : [];
 
     foreach ($data['matches'] as $match) {
-        $homeTeamId = $match['home_team_id'];
-        $awayTeamId = $match['away_team_id'];
-        $homeTeamName = $match['embed']['home_team']['name'] ?? $equiposMap[$homeTeamId] ?? 'Unknown';
-        $awayTeamName = $match['embed']['away_team']['name'] ?? $equiposMap[$awayTeamId] ?? 'Unknown';
+        if (!isset($match['id']) || !isset($match['embed']) || !isset($match['embed']['home_team']) || !isset($match['embed']['away_team'])) {
+            continue;
+        }
 
-        $homeScore = $match['score']['full_time']['home'] ?? null;
-        $awayScore = $match['score']['full_time']['away'] ?? null;
+        $id = $match['id'] ?? null;
+        $season_id = $match['season_id'] ?? 20252026;
         $matchday = $match['matchday'] ?? 0;
+        $utc_date = $match['utc_date'] ?? null;
+        $local_date = $match['local_date'] ?? null;
+        $timezone = $match['timezone'] ?? 'Europe/Madrid';
+        $venue = $match['venue'] ?? '';
+        $home_team_id = $match['home_team_id'] ?? null;
+        $away_team_id = $match['away_team_id'] ?? null;
+        $status = $match['status'] ?? 'scheduled';
+        $winner = $match['winner'] ?? null;
+        $updated_at_utc = $match['updated_at_utc'] ?? date('Y-m-d H:i:s');
+
+        $home_score_full = $match['score']['full_time']['home'] ?? null;
+        $away_score_full = $match['score']['full_time']['away'] ?? null;
+        $home_score_half = $match['score']['half_time']['home'] ?? null;
+        $away_score_half = $match['score']['half_time']['away'] ?? null;
+
+        $points_home = $match['points_awarded']['home'] ?? 0;
+        $points_away = $match['points_awarded']['away'] ?? 0;
+
+        $home_team_name = $match['embed']['home_team']['name'] ?? 'Unknown';
+        $away_team_name = $match['embed']['away_team']['name'] ?? 'Unknown';
+        $home_team_short_name = $match['embed']['home_team']['short_name'] ?? '';
+        $away_team_short_name = $match['embed']['away_team']['short_name'] ?? '';
+        $home_team_code = $match['embed']['home_team']['code'] ?? '';
+        $away_team_code = $match['embed']['away_team']['code'] ?? '';
+        $home_team_crest = $match['embed']['home_team']['crest_url'] ?? '';
+        $away_team_crest = $match['embed']['away_team']['crest_url'] ?? '';
+        $home_team_city = $match['embed']['home_team']['city'] ?? '';
+        $away_team_city = $match['embed']['away_team']['city'] ?? '';
+        $home_team_stadium = $match['embed']['home_team']['stadium']['name'] ?? '';
+        $away_team_stadium = $match['embed']['away_team']['stadium']['name'] ?? '';
+        $home_team_capacity = $match['embed']['home_team']['stadium']['capacity'] ?? 0;
+        $away_team_capacity = $match['embed']['away_team']['stadium']['capacity'] ?? 0;
+        $home_team_lat = $match['embed']['home_team']['stadium']['geo']['lat'] ?? 0;
+        $home_team_lng = $match['embed']['home_team']['stadium']['geo']['lng'] ?? 0;
+        $away_team_lat = $match['embed']['away_team']['stadium']['geo']['lat'] ?? 0;
+        $away_team_lng = $match['embed']['away_team']['stadium']['geo']['lng'] ?? 0;
 
         $results[] = [
-            'idEvent' => $match['id'],
-            'api_id_evento' => (string)$match['id'],
-            'strEvent' => $homeTeamName . ' vs ' . $awayTeamName,
-            'nombre_evento' => $homeTeamName . ' vs ' . $awayTeamName,
-            'dateEvent' => $match['utc_date'] ?? null,
-            'fecha_evento' => isset($match['utc_date']) ? date('Y-m-d', strtotime($match['utc_date'])) : null,
-            'intHomeScore' => $homeScore,
-            'goles_local' => $homeScore,
-            'intAwayScore' => $awayScore,
-            'goles_visitante' => $awayScore,
-            'strHomeTeam' => $homeTeamName,
-            'equipo_local' => $homeTeamName,
-            'strAwayTeam' => $awayTeamName,
-            'equipo_visitante' => $awayTeamName,
-            'strVenue' => $match['venue'] ?? '',
-            'strStatus' => $match['status'] ?? '',
-            'strRound' => 'Jornada ' . $matchday,
-            'intHomeTeamId' => $homeTeamId,
-            'intAwayTeamId' => $awayTeamId,
-            'home_team_id' => $homeTeamId,
-            'away_team_id' => $awayTeamId,
+            'api_id_evento' => (string)$id,
+            'id' => $id,
+            'season_id' => $season_id,
             'matchday' => $matchday,
-            'jornada' => $matchday,
-            'updated_at' => $match['updated_at_utc'] ?? date('Y-m-d H:i:s')
+            'utc_date' => $utc_date,
+            'local_date' => $local_date,
+            'timezone' => $timezone,
+            'fecha_evento' => isset($utc_date) ? date('Y-m-d H:i:s', strtotime($utc_date)) : null,
+            'venue' => $venue,
+            'home_team_id' => $home_team_id,
+            'away_team_id' => $away_team_id,
+            'status' => $status,
+            'strHomeTeam' => $home_team_name,
+            'equipo_local' => $home_team_name,
+            'strAwayTeam' => $away_team_name,
+            'equipo_visitante' => $away_team_name,
+            'intHomeScore' => $home_score_full,
+            'goles_local' => $home_score_full,
+            'intAwayScore' => $away_score_full,
+            'goles_visitante' => $away_score_full,
+            'home_score_half' => $home_score_half,
+            'away_score_half' => $away_score_half,
+            'winner' => $winner,
+            'points_home' => $points_home,
+            'points_away' => $points_away,
+            'home_team_short_name' => $home_team_short_name,
+            'away_team_short_name' => $away_team_short_name,
+            'home_team_code' => $home_team_code,
+            'away_team_code' => $away_team_code,
+            'home_team_crest' => $home_team_crest,
+            'away_team_crest' => $away_team_crest,
+            'home_team_city' => $home_team_city,
+            'away_team_city' => $away_team_city,
+            'home_team_stadium' => $home_team_stadium,
+            'away_team_stadium' => $away_team_stadium,
+            'home_team_capacity' => $home_team_capacity,
+            'away_team_capacity' => $away_team_capacity,
+            'home_team_lat' => $home_team_lat,
+            'home_team_lng' => $home_team_lng,
+            'away_team_lat' => $away_team_lat,
+            'away_team_lng' => $away_team_lng,
+            'updated_at_utc' => $updated_at_utc,
+            'strEvent' => $home_team_name . ' vs ' . $away_team_name,
+            'nombre_evento' => $home_team_name . ' vs ' . $away_team_name
         ];
     }
 
@@ -350,7 +402,6 @@ function fetch_team_events($teamId)
 
         $homeTeamName = $match['embed']['home_team']['name'] ?? $equiposMap[$match['home_team_id']] ?? 'Unknown';
         $awayTeamName = $match['embed']['away_team']['name'] ?? $equiposMap[$match['away_team_id']] ?? 'Unknown';
-
         $homeScore = $match['score']['full_time']['home'] ?? null;
         $awayScore = $match['score']['full_time']['away'] ?? null;
         $matchday = $match['matchday'] ?? 0;
