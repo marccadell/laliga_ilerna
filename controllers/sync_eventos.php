@@ -19,8 +19,23 @@ function sincronizar_y_obtener_eventos($conn)
         INSERT INTO `matches`
         (`id`, `season_id`, `matchday`, `utc_date`, `timezone`, `local_date`, `venue`,
         `home_team_id`, `away_team_id`, `status`, `ft_home`, `ft_away`, `ht_home`, `ht_away`,
-        `winner`, `points_home`, `points_away`, `updated_at`)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())");
+        `winner`, `points_home`, `points_away`)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        ON DUPLICATE KEY UPDATE
+        `matchday` = VALUES(`matchday`),
+        `utc_date` = VALUES(`utc_date`),
+        `timezone` = VALUES(`timezone`),
+        `local_date` = VALUES(`local_date`),
+        `venue` = VALUES(`venue`),
+        `status` = VALUES(`status`),
+        `ft_home` = VALUES(`ft_home`),
+        `ft_away` = VALUES(`ft_away`),
+        `ht_home` = VALUES(`ht_home`),
+        `ht_away` = VALUES(`ht_away`),
+        `winner` = VALUES(`winner`),
+        `points_home` = VALUES(`points_home`),
+        `points_away` = VALUES(`points_away`),
+        `updated_at` = NOW()");
     if (!$stmt) {
         $conn->query('SET FOREIGN_KEY_CHECKS=1');
         return [];
@@ -80,8 +95,6 @@ function sincronizar_y_obtener_eventos($conn)
         }
     }
     $stmt->close();
-
-    $conn->query('SET FOREIGN_KEY_CHECKS=1');
 
     $result = $conn->query('SELECT m.*,
                             ht.name as home_team_name, ht.short_name as home_team_short_name, ht.code as home_team_code, ht.crest_url as home_team_crest,

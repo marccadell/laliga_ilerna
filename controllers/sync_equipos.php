@@ -4,7 +4,7 @@
 		$equipos_api = fetch_all_teams();
 
 		if (!$equipos_api || !is_array($equipos_api)) {
-			echo "<script>console.log('Error: fetch_all_teams() retornó datos vacíos o inválidos');</script>";
+			echo "<script>console.log('fetch_all_teams() ha devuelto datos vacios o invalidos');</script>";
 			return [];
 		}
 		echo "<script>console.log('Sincronizando equipos en BBDD...');</script>";

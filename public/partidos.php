@@ -9,7 +9,7 @@ $eventos = sincronizar_y_obtener_eventos($conn);
 ?>
 
 <main class="container">
-    <h1>Partidos - La Liga</h1>
+    <h1>Partidos de la Temporada - LaLiga EA SPORTS <?php echo SEASON_ID; ?></h1>
 
     <div class="filtros">
         <div class="search-box">
@@ -77,7 +77,7 @@ $eventos = sincronizar_y_obtener_eventos($conn);
                 <?php
             endforeach;
         else:
-            echo '<div style="text-align:center; padding: 40px; color: #666;">Error: No se ha podido cargar los eventos</div>';
+            echo '<div style="text-align:center; padding: 40px; color: #666;">Error: No se pudieron cargar los eventos</div>';
         endif;
         ?>
     </div>
