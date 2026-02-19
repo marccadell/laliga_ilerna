@@ -1661,3 +1661,37 @@ button:hover {
         font-size: 14px;
     }
 }
+
+/* Estructura del Proyecto */
+.estructura-proyecto {
+    background-color: #f4f4f4;
+    border-left: 4px solid #003366;
+    border-radius: 6px;
+    padding: 20px;
+    margin: 30px 0;
+    overflow-x: auto;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+.estructura-proyecto pre {
+    margin: 0;
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 13px;
+    color: #333;
+    line-height: 1.5;
+    white-space: pre-wrap;
+    word-break: break-word;
+}
+
+@media (max-width: 768px) {
+    .estructura-proyecto {
+        padding: 15px;
+        margin: 20px 0;
+        font-size: 11px;
+    }
+
+    .estructura-proyecto pre {
+        font-size: 11px;
+        line-height: 1.4;
+    }
+}

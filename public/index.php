@@ -16,6 +16,46 @@ require_once __DIR__ . '/../includes/header.php';
 <br>
 <p><strong>Estructura del Proyecto:</strong> LaLiga Stats utiliza una arquitectura en capas con separación clara de responsabilidades. Los datos provienen de una API JSON local que se sincroniza con una base de datos MySQL mediante controladores especializados. El frontend consume estos datos desde endpoints públicos que garantizan caché eficiente y evitan llamadas directas a la API. La aplicación incluye páginas para visualizar equipos, tabla de clasificación, partidos próximos y un formulario de contacto, todo construido con PHP vanilla y JavaScript sin dependencias externas.</p>
 
+<div class="estructura-proyecto">
+<pre>laliga/
+├── 📄 README.md                          # Este archivo
+├── 📄 config/
+│   └── config.php                        # Configuración global (DB, constantes, TTLs)
+├── 📄 database/
+│   ├── db.php                            # Conexión MySQLi
+│   └── script.sql                        # Esquema de la base de datos
+├── 📄 api/
+│   ├── api.php                           # Wrapper de funciones fetch_*
+│   └── laliga_2025_2026_api_v3.json      # Datos JSON locales (fuente de datos)
+├── 📄 controllers/
+│   ├── sync_equipos.php                  # Sincronización de equipos
+│   ├── sync_clasificacion.php            # Sincronización de clasificación
+│   └── sync_eventos.php                  # Sincronización de partidos
+├── 📄 includes/
+│   ├── header.php                        # Encabezado HTML
+│   ├── nav.php                           # Barra de navegación
+│   └── footer.php                        # Pie de página
+├── 📄 public/
+│   ├── index.php                         # Página de inicio
+│   ├── equipos.php                       # Página de equipos
+│   ├── tabla.php                         # Tabla de clasificación
+│   ├── partidos.php                      # Partidos y eventos
+│   ├── contacto.php                      # Formulario de contacto
+│   ├── data/
+│   │   ├── equipos.php                   # Endpoint JSON: datos de equipos
+│   │   ├── clasificacion.php             # Endpoint JSON: tabla de clasificación
+│   │   ├── eventos.php                   # Endpoint JSON: partidos
+│   │   └── metadata.php                  # Endpoint JSON: metadatos
+│   └── assets/
+│       ├── css/
+│       │   └── style.css                 # Estilos responsive
+│       ├── js/
+│       │   ├── equipos.js                # Lógica de página equipos
+│       │   ├── tabla.js                  # Lógica de tabla clasificación
+│       │   ├── partidos.js               # Lógica de partidos
+│       │   └── contacto.js               # Validación formulario contacto
+│       └── imgs/                         # Imágenes y escudos</pre>
+</div>
 <?php
 require_once __DIR__ . '/../includes/footer.php';
 ?>
