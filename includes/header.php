@@ -10,6 +10,10 @@
     <title><?= htmlspecialchars($pageTitle) ?></title>
     <link rel="stylesheet" href="<?= ROOT_PATH ?>assets/css/style.css">
 </head>
+
 <body>
 <?php include __DIR__ . '/nav.php'; ?>
+<div>
+    <br></br>
+</div>
 
