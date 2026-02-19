@@ -2,7 +2,7 @@
 define('DB_HOST', 'localhost');
 define('DB_USER', 'root');
 define('DB_PASS', '');
-define('DB_NAME', 'proyecto-git');
+define('DB_NAME', 'proyectogit');
 define('DB_PORT', 3307);
 
 define('API_KEY', 'TU_API_KEY_AQUI');
